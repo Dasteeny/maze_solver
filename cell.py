@@ -46,3 +46,26 @@ class Cell:
                     Point(self._x2, self._y2),
                 )
             )
+
+    def draw_move(self, to_cell: "Cell", undo: bool = False):
+        current_half_length_x = abs(self._x2 - self._x1) // 2
+        current_half_length_y = abs(self._y2 - self._y1) // 2
+
+        current_x_center = self._x1 + current_half_length_x
+        current_y_center = self._y1 + current_half_length_y
+
+        to_cell_half_length_x = abs(to_cell._x2 - to_cell._x1) // 2
+        to_cell_half_length_y = abs(to_cell._y2 - to_cell._y1) // 2
+
+        to_cell_x_center = to_cell._x1 + to_cell_half_length_x
+        to_cell_y_center = to_cell._y1 + to_cell_half_length_y
+
+        fill_color = "grey" if undo else "red"
+
+        self._win.draw_line(
+            line=Line(
+                Point(current_x_center, current_y_center),
+                Point(to_cell_x_center, to_cell_y_center),
+            ),
+            fill_color=fill_color,
+        )
