@@ -1,7 +1,16 @@
+import random
 import time
+from enum import Enum
 
 from cell import Cell
 from graphics import Window
+
+
+class Directions(Enum):
+    right = "right"
+    left = "left"
+    up = "up"
+    down = "down"
 
 
 class Maze:
@@ -14,6 +23,7 @@ class Maze:
         cell_size_x: int,
         cell_size_y: int,
         win: Window = None,
+        seed: int = None,
     ):
         self._cells: list[list[Cell]] = []
         self._x1: int = x1
@@ -24,8 +34,12 @@ class Maze:
         self._cell_size_y: int = cell_size_y
         self._win: Window = win
 
+        if seed:
+            random.seed(seed)
+
         self._create_cells()
         self._break_entrance_and_exit()
+        self._break_walls_r(0, 0)
 
     def _create_cells(self):
         for i in range(self._num_cols):
@@ -60,3 +74,39 @@ class Maze:
         self._draw_cell(0, 0)
         self._cells[self._num_cols - 1][self._num_rows - 1].has_bottom_wall = False
         self._draw_cell(self._num_cols - 1, self._num_rows - 1)
+
+    def _break_walls_r(self, i, j):
+        current_cell = self._cells[i][j]
+        current_cell.visited = True
+        while True:
+            to_visit = []
+            if i - 1 >= 0 and not self._cells[i - 1][j].visited:
+                to_visit.append((i - 1, j, Directions.left))
+            if i + 1 < self._num_cols and not self._cells[i + 1][j].visited:
+                to_visit.append((i + 1, j, Directions.right))
+            if j - 1 >= 0 and not self._cells[i][j - 1].visited:
+                to_visit.append((i, j - 1, Directions.up))
+            if j + 1 < self._num_rows and not self._cells[i][j + 1].visited:
+                to_visit.append((i, j + 1, Directions.down))
+
+            if not to_visit:
+                self._draw_cell(i, j)
+                return
+
+            to_i, to_j, direction = random.choice(to_visit)
+            to_cell = self._cells[to_i][to_j]
+            match direction:
+                case Directions.right:
+                    current_cell.has_right_wall = False
+                    to_cell.has_left_wall = False
+                case Directions.left:
+                    current_cell.has_left_wall = False
+                    to_cell.has_right_wall = False
+                case Directions.up:
+                    current_cell.has_top_wall = False
+                    to_cell.has_bottom_wall = False
+                case Directions.down:
+                    current_cell.has_bottom_wall = False
+                    to_cell.has_up_wall = False
+
+            self._break_walls_r(to_i, to_j)
