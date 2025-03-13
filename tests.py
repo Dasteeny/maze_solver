@@ -1,3 +1,4 @@
+import random
 import unittest
 
 from maze import Maze
@@ -42,6 +43,12 @@ class Tests(unittest.TestCase):
             m1._cells[num_cols - 1][num_rows - 1].has_bottom_wall,
             False,
         )
+
+    def test_maze_cells_set_to_unvisited(self):
+        num_cols = 5
+        num_rows = 4
+        m1 = Maze(0, 0, num_rows, num_cols, 10, 10)
+        self.assertFalse(random.choice(random.choice(m1._cells)).visited)
 
 
 if __name__ == "__main__":
